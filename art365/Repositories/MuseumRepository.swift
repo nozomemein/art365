@@ -38,7 +38,7 @@ actor MuseumRepository {
         defer { isFetching = false }
         
         do {
-            let idsURL = URL(string: "https://collectionapi.metmuseum.org/public/collection/v1/search?q=painting&hasImages=true")!
+            let idsURL = URL(string: "https://collectionapi.metmuseum.org/public/collection/v1/search?q=painting&hasImages=true&isOnView=true")!
             let(data, _) = try await URLSession.shared.data(from: idsURL)
             let ids = try JSONDecoder().decode(ObjectIDsResponse.self, from: data)
             return .success(ids)
@@ -55,6 +55,7 @@ actor MuseumRepository {
             let artDetail = try JSONDecoder().decode(ArtDetailResponse.self, from: data)
             return .success(artDetail)
         } catch {
+            // objectIDが存在するにもかかわらず、データが取得できない場合がある
             debugPrint("Error fetching artwork detail: \(error)")
             return .failure(.invalidResponse)
         }
