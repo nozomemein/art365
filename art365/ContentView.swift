@@ -12,7 +12,7 @@ struct ContentView: View {
                 VStack(alignment: .leading, spacing: 16) {
                     if let artwork = artwork {
                         ArtworkCardView(
-                            imageURL: artwork.primaryImageSmall ?? "",
+                            imageURL: artwork.primaryImageSmall,
                             title: artwork.title,
                             artist: artwork.artistDisplayName,
                             year: artwork.objectDate
@@ -28,7 +28,7 @@ struct ContentView: View {
                 }
                 // Debug用
                 Button("ランダムな作品を表示") {
-                    print("buttonをクリック")
+                    debugPrint("buttonをクリック")
                     Task {
                         isLoading = true
                         defer { isLoading = false }
@@ -39,21 +39,20 @@ struct ContentView: View {
                         }
                         
                         if let randomID = objectIDs.randomElement() {
+                            debugPrint("ランダムなID: \(randomID)")
                             let result = await MuseumRepository.shared.fetchArtWork(objectID: randomID)
                             switch result {
                             case .success(let fetchedArtwork):
                                 artwork = fetchedArtwork
                             case .failure(let error):
-                                print("詳細取得エラー: \(error)")
+                                debugPrint("詳細取得エラー: \(error)")
                             }
                         }
                     }
                 }.disabled(isLoading)
                     .padding()
-                
-                Text("Fetched Object IDs: \(objectIDs.count)")
             }
-            .navigationTitle("今日の名画")
+            .navigationTitle("今日のArt")
             .navigationDestination(for: Routes.self ) { route in
                 route.destination()
             }
@@ -64,11 +63,11 @@ struct ContentView: View {
         let result = await MuseumRepository.shared.fetchObjectIds()
         switch result {
         case .success(let objectIDs):
-            print("成功")
-            print(objectIDs.objectIDs.prefix(10))
+            debugPrint("成功")
+            debugPrint(objectIDs.objectIDs.prefix(10))
             return objectIDs.objectIDs
         case .failure(let error):
-            print("エラー: \(error)")
+            debugPrint("エラー: \(error)")
             return []
         }
     }

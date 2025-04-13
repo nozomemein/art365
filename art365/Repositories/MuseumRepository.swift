@@ -21,7 +21,7 @@ actor MuseumRepository {
         let title: String
         let artistDisplayName: String
         let objectDate: String
-        let primaryImageSmall: String?
+        let primaryImageSmall: String
     }
     
     enum FetchError: Error {
@@ -38,12 +38,12 @@ actor MuseumRepository {
         defer { isFetching = false }
         
         do {
-            let idsURL = URL(string: "https://collectionapi.metmuseum.org/public/collection/v1/objects")!
+            let idsURL = URL(string: "https://collectionapi.metmuseum.org/public/collection/v1/search?q=painting&hasImages=true")!
             let(data, _) = try await URLSession.shared.data(from: idsURL)
             let ids = try JSONDecoder().decode(ObjectIDsResponse.self, from: data)
             return .success(ids)
         } catch {
-            print("Error fetching object IDs: \(error)")
+            debugPrint("Error fetching object IDs: \(error)")
             return .failure(.invalidResponse)
         }
     }
@@ -53,10 +53,9 @@ actor MuseumRepository {
             let url = URL(string: "https://collectionapi.metmuseum.org/public/collection/v1/objects/\(objectID)")!
             let (data, _) = try await URLSession.shared.data(from: url)
             let artDetail = try JSONDecoder().decode(ArtDetailResponse.self, from: data)
-            
             return .success(artDetail)
         } catch {
-            print("Error fetching artwork detail: \(error)")
+            debugPrint("Error fetching artwork detail: \(error)")
             return .failure(.invalidResponse)
         }
     }
