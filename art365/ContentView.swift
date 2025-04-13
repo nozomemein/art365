@@ -1,8 +1,10 @@
 import SwiftUI
 
 struct ContentView: View {
+    @State private var path = NavigationPath()
+    
     var body: some View {
-        NavigationStack {
+        NavigationStack(path: $path) {
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
                     ArtworkCardView(
@@ -15,6 +17,9 @@ struct ContentView: View {
                 }
             }
             .navigationTitle("今日の名画")
+            .navigationDestination(for: Routes.self ) { route in
+                route.destination()
+            }
         }
     }
 }
