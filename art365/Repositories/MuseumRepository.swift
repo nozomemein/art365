@@ -16,6 +16,14 @@ actor MuseumRepository {
         let objectIDs: [Int]
     }
     
+    struct ArtDetailResponse: Decodable {
+        let objectID: Int
+        let title: String
+        let artistDisplayName: String
+        let objectDate: String
+        let primaryImageSmall: String?
+    }
+    
     enum FetchError: Error {
         case inProgress
         case invalidResponse
@@ -36,6 +44,19 @@ actor MuseumRepository {
             return .success(ids)
         } catch {
             print("Error fetching object IDs: \(error)")
+            return .failure(.invalidResponse)
+        }
+    }
+    
+    func fetchArtWork(objectID: Int) async -> Result<ArtDetailResponse, FetchError> {
+        do {
+            let url = URL(string: "https://collectionapi.metmuseum.org/public/collection/v1/objects/\(objectID)")!
+            let (data, _) = try await URLSession.shared.data(from: url)
+            let artDetail = try JSONDecoder().decode(ArtDetailResponse.self, from: data)
+            
+            return .success(artDetail)
+        } catch {
+            print("Error fetching artwork detail: \(error)")
             return .failure(.invalidResponse)
         }
     }
